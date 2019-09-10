@@ -3,6 +3,7 @@ from strawberryfields.ops import *
 import tensorflow as tf
 import pandas as pd
 
+
 # Retrieve data
 df = pd.read_csv('AToy.csv')
 df = df.drop(df.columns[0], axis =1)

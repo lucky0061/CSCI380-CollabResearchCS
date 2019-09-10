@@ -40,82 +40,82 @@ dev = qml.device('strawberryfields.fock', wires=6, cutoff_dim=10)
 # weight util functions
 def build_weights(hidden_dims=(64, 64)):
         # Matrix multiplication of input layer
-    qml.Rotation(v[0], wires=0)   #Rgate
-    qml.Squeezing(v[1], 0., wires=0) #Sgate
-    qml.Rotation(v[2], wires=0)
+    # qml.Rotation(v[0], wires=0)   #Rgate
+    # qml.Squeezing(v[1], 0., wires=0) #Sgate
+    # qml.Rotation(v[2], wires=0)
 
-    # Bias
-    qml.Displacement(v[3], 0., wires=0) #Dgate
+    # # Bias
+    # qml.Displacement(v[3], 0., wires=0) #Dgate
 
-    # Element-wise nonlinear transformation
-    qml.Kerr(v[4], wires=0) #KGate
-    ########################################################
-    qml.Rotation(v[5], wires=1)   #Rgate
-    qml.Squeezing(v[6], 0., wires=1) #Sgate
-    qml.Rotation(v[7], wires=1)
+    # # Element-wise nonlinear transformation
+    # qml.Kerr(v[4], wires=0) #KGate
+    # ########################################################
+    # qml.Rotation(v[5], wires=1)   #Rgate
+    # qml.Squeezing(v[6], 0., wires=1) #Sgate
+    # qml.Rotation(v[7], wires=1)
 
-    # Bias
-    qml.Displacement(v[8], 0., wires=1) #Dgate
+    # # Bias
+    # qml.Displacement(v[8], 0., wires=1) #Dgate
 
-    # Element-wise nonlinear transformation
-    qml.Kerr(v[9], wires=1) #KGate
-    ###################################################################
-    qml.Rotation(v[10], wires=2)   #Rgate
-    qml.Squeezing(v[11], 0., wires=2) #Sgate
-    qml.Rotation(v[12], wires=2)
+    # # Element-wise nonlinear transformation
+    # qml.Kerr(v[9], wires=1) #KGate
+    # ###################################################################
+    # qml.Rotation(v[10], wires=2)   #Rgate
+    # qml.Squeezing(v[11], 0., wires=2) #Sgate
+    # qml.Rotation(v[12], wires=2)
 
-    # Bias
-    qml.Displacement(v[13], 0., wires=2) #Dgate
+    # # Bias
+    # qml.Displacement(v[13], 0., wires=2) #Dgate
 
-    # Element-wise nonlinear transformation
-    qml.Kerr(v[14], wires=2) #KGate
-    ######################################################################
-    qml.Rotation(v[15], wires=3)   #Rgate
-    qml.Squeezing(v[16], 0., wires=3) #Sgate
-    qml.Rotation(v[17], wires=3)
+    # # Element-wise nonlinear transformation
+    # qml.Kerr(v[14], wires=2) #KGate
+    # ######################################################################
+    # qml.Rotation(v[15], wires=3)   #Rgate
+    # qml.Squeezing(v[16], 0., wires=3) #Sgate
+    # qml.Rotation(v[17], wires=3)
 
-    # Bias
-    qml.Displacement(v[18], 0., wires=3) #Dgate
+    # # Bias
+    # qml.Displacement(v[18], 0., wires=3) #Dgate
 
-    # Element-wise nonlinear transformation
-    qml.Kerr(v[19], wires=3) #KGate
-    #####################################################################
-    qml.Rotation(v[20], wires=4)   #Rgate
-    qml.Squeezing(v[21], 0., wires=4) #Sgate
-    qml.Rotation(v[22], wires=4)
+    # # Element-wise nonlinear transformation
+    # qml.Kerr(v[19], wires=3) #KGate
+    # #####################################################################
+    # qml.Rotation(v[20], wires=4)   #Rgate
+    # qml.Squeezing(v[21], 0., wires=4) #Sgate
+    # qml.Rotation(v[22], wires=4)
 
-    # Bias
-    qml.Displacement(v[23], 0., wires=4) #Dgate
+    # # Bias
+    # qml.Displacement(v[23], 0., wires=4) #Dgate
 
-    # Element-wise nonlinear transformation
-    qml.Kerr(v[24], wires=4) #KGate
-    ######################################################################
-    qml.Rotation(v[25], wires=5)   #Rgate
-    qml.Squeezing(v[26], 0., wires=5) #Sgate
-    qml.Rotation(v[27], wires=5)
+    # # Element-wise nonlinear transformation
+    # qml.Kerr(v[24], wires=4) #KGate
+    # ######################################################################
+    # qml.Rotation(v[25], wires=5)   #Rgate
+    # qml.Squeezing(v[26], 0., wires=5) #Sgate
+    # qml.Rotation(v[27], wires=5)
 
-    # Bias
-    qml.Displacement(v[28], 0., wires=5) #Dgate
+    # # Bias
+    # qml.Displacement(v[28], 0., wires=5) #Dgate
 
-    # Element-wise nonlinear transformation
-    qml.Kerr(v[29], wires=5) #KGate
-    # """Return dictionary on neural network weights"""
-    # # Initialize all weights (model params) with "Xavier Initialization" 
-    # # weight matrix init = uniform(-1, 1) / sqrt(layer_input)
-    # # bias init = zeros()
-    # H1, H2 = hidden_dims
-    # w = {}
-    # w['W1'] = (-1 + 2*np.random.rand(1, H1)) / np.sqrt(1)
-    # w['b1'] = np.zeros(H1)
-    # w['W2'] = (-1 + 2*np.random.rand(H1, H2)) / np.sqrt(H1)
-    # w['b2'] = np.zeros(H2)
-    # w['W3'] = (-1 + 2*np.random.rand(H2, 1)) / np.sqrt(H2)
-    # w['b3'] = np.zeros(1)
+    # # Element-wise nonlinear transformation
+    # qml.Kerr(v[29], wires=5) #KGate
+    """Return dictionary on neural network weights"""
+    # Initialize all weights (model params) with "Xavier Initialization" 
+    # weight matrix init = uniform(-1, 1) / sqrt(layer_input)
+    # bias init = zeros()
+    H1, H2 = hidden_dims
+    w = {}
+    w['W1'] = (-1 + 2*np.random.rand(6, H1)) / np.sqrt(1)
+    w['b1'] = np.zeros(H1)
+    w['W2'] = (-1 + 2*np.random.rand(H1, H2)) / np.sqrt(H1)
+    w['b2'] = np.zeros(H2)
+    w['W3'] = (-1 + 2*np.random.rand(H2, 1)) / np.sqrt(H2)
+    w['b3'] = np.zeros(1)
 
-    # # Cast all parameters to the correct datatype
-    # for k, v in w.items():
-    #     w[k] = v.astype(np.float32)
-    # return w
+    # Cast all parameters to the correct datatype
+    for k, v in w.items():
+        w[k] = v.astype(np.float32)
+    return w
 
 # def save_weights(weights, filename, quiet=False):
 #     with open(filename, 'wb') as f:

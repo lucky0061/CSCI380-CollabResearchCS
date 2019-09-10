@@ -104,8 +104,13 @@ results = eng.run(circuit, run_options={"eval": False})
 # p2 = state.fock_prob([2, 0, 0])
 mean_x_0, svd_x = results.state.quad_expectation(0)
 mean_x_1, svd_x = results.state.quad_expectation(1)
+mean_x_2, svd_x = results.state.quad_expectation(2)
+mean_x_3, svd_x = results.state.quad_expectation(3)
+mean_x_4, svd_x = results.state.quad_expectation(4)
+mean_x_5, svd_x = results.state.quad_expectation(5)
 # mean_x_2, svd_x = results.state.quad_expectation(2)
-circuit_output = [mean_x_0, mean_x_1]
+norm = mean_x_0 + mean_x_1 + mean_x_2 + mean_x_3 + mean_x_4 + mean_x_5 + 1e-10
+circuit_output = [mean_x_0/norm]
 # circuit_output = [mean_x_0, mean_x_1, mean_x_2]
 
 loss = tf.losses.mean_squared_error(labels=circuit_output, predictions=y)

@@ -65,7 +65,7 @@ class MAML(object):
         self.windows = mkWindows(self.num_train_samples,self.num_meta_samples,
                                  self.num_test_samples,self.data_length,self.shift)
         # Define the variational circuit and its output.
-        self.X = tf.placeholder(tf.float32, shape=[4])
+        self.X = tf.placeholder(tf.float32, shape=[1])
         self.y = tf.placeholder(tf.float32, shape=[1])
         self.sdev = 0.05
         self.depth = 80

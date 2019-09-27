@@ -77,7 +77,7 @@ class MAML(object):
         self.num_tasks = 5
         
         #number of samples i.e number of shots  -number of data points (k) we need to have in each task
-        self.num_train_samples = 20
+        self.num_train_samples = 5
         self.num_meta_samples = 5
         self.num_test_samples = 5
         self.data_length = 20
@@ -95,8 +95,19 @@ class MAML(object):
         #randomly initialize our model parameter theta
         self.theta = np.random.normal(size=1).reshape(1, 1)
         
-        self.windows = mkWindows(self.num_train_samples,self.num_meta_samples,
-                                 self.num_test_samples,self.data_length,self.shift)
+        # self.windows = mkWindows(self.num_train_samples,self.num_meta_samples,
+        #                          self.num_test_samples,self.data_length,self.shift)
+                # Define the variational circuit and its output.
+        self.X = tf.placeholder(tf.float32, shape=[1])
+        self.y = tf.placeholder(tf.float32, shape=[1])
+        self.sdev = 0.05
+        self.depth = 80
+        self.phi = tf.Variable(tf.random_normal(shape=[self.depth], stddev=self.sdev))
+        self.phi_ = tf.Variable(tf.random_normal(shape=[self.depth], stddev=self.sdev))
+
+        # eng, q = sf.Engine(3)
+        self.circuit = sf.Program(4)
+        self.eng = sf.Engine(backend="tf", backend_options={"cutoff_dim": 7})
       
     #define our sigmoid activation function  
     def sigmoid(self,a):
@@ -191,7 +202,8 @@ class MAML(object):
                 
                 total_accuracy += accuracy
                 
-        total_accuracy = total_accuracy / (self.num_tasks * len(self.windows)/3)
+        # total_accuracy = total_accuracy / (self.num_tasks * len(self.windows)/3)
+        total_accuracy = total_accuracy / self.num_tasks
         print("Total accuracy {}%".format(total_accuracy))
 model = MAML()
 model.train()

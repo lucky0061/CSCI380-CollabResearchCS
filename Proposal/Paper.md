@@ -19,4 +19,3 @@ The environment we are testing our algorithm on is trading on the stock market. 
 ### Compare Performance from other methods
 ## Conclusion
 ## Bibliography
-change

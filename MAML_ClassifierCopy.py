@@ -5,7 +5,7 @@ from sklearn.preprocessing import MinMaxScaler
 import tensorflow as tf
 import strawberryfields as sf
 from strawberryfields.ops import *
-from QModel import QModel, QMetaOptimizer
+from QModel import QModel
 
 
 
@@ -103,7 +103,7 @@ class MAML(object):
         self.sdev = 0.05
         self.depth = 80
         # self.theta = tf.Variable(tf.random_normal(shape=[1,1], stddev=self.sdev))
-        self.theta = np.random.normal(size=3).reshape(3, 1)
+        self.theta = np.random.normal(size=3).reshape(3)
         
         # self.windows = mkWindows(self.num_train_samples,self.num_meta_samples,
         #                          self.num_test_samples,self.data_length,self.shift)
@@ -115,8 +115,9 @@ class MAML(object):
         # self.phi_ = tf.Variable(tf.random_normal(shape=[self.depth], stddev=self.sdev))
 
         # eng, q = sf.Engine(3)
-        self.TrainModel = QModel(session)
-        self.MetaModel = QMetaOptimizer(session)
+        self.MySess = session
+        self.TrainModel = QModel(self.MySess)
+        # self.MetaModel = QMetaOptimizer(session1)
       
     #define our sigmoid activation function  
     def sigmoid(self,a):
@@ -130,7 +131,7 @@ class MAML(object):
         #for the number of epochs,
         for e in range(self.epochs):        
 
-            self.theta_ = []
+            theta_ = []
 
             #for task i in batch of tasks
             for i in range(self.num_tasks):
@@ -141,8 +142,10 @@ class MAML(object):
                 print("YTrain: " + str(YTrain.tolist()))
                 # print(self.theta)
                 self.TrainModel.fit(XTrain,YTrain)
-                gradient = self.TrainModel.calc_grad()
+                gradient = self.TrainModel.calc_grad(XTrain,YTrain)
                 print(gradient)
+
+                
 #                 a = np.matmul(XTrain, self.theta)
                 
 # #                 print(a)
@@ -157,7 +160,7 @@ class MAML(object):
                 # gradient = np.matmul(XTrain.T, (YHat - YTrain)) / self.num_train_samples
 
                 #update the gradients and find the optimal parameter theta' for each of tasks
-                self.theta_.append(self.theta - self.alpha*gradient)
+                theta_.append(self.theta - self.alpha*gradient)
 
 
             #initialize meta gradients
@@ -169,15 +172,21 @@ class MAML(object):
                 XMeta, YMeta = sample_points_test()
 #                 XTest = X_train[20:23]
 #                 YTest = Y_train[20:23]
+                # Meta =  QMetaOptimizer(session1, theta_[i])
+                # temp = Meta.fit(XMeta,YMeta)
+                print("Theta_[i]: ", theta_[i], " -------------------- ")
+                print("Theta_[i][0]: ", theta_[i][0], " -------------------- ")
+                QMetaModel = QModel(self.MySess,tf.Variable(theta_[i][0]))
+                QMetaModel.fit(XMeta, YMeta)
+                meta_gradient += QMetaModel.calc_grad(XMeta, YMeta)[0]
 
+                # #predict the value of y
+                # a = np.matmul(XMeta, self.theta_[i])
 
-                #predict the value of y
-                a = np.matmul(XMeta, self.theta_[i])
+                # YPred = self.sigmoid(a)
 
-                YPred = self.sigmoid(a)
-
-                #compute meta gradients
-                meta_gradient += np.matmul(XMeta.T, (YPred - YMeta)) / self.num_meta_samples
+                # #compute meta gradients
+                # meta_gradient += np.matmul(XMeta.T, (YPred - YMeta)) / self.num_meta_samples
 
 
             #update our randomly initialized model parameter theta with the meta gradients
@@ -187,11 +196,12 @@ class MAML(object):
         
         for i in range(self.num_tasks):
             XTest, YTest = sample_points_test()
-            a = np.matmul(XTest, self.theta)
-            YPred = self.sigmoid(a)
-            
+            # a = np.matmul(XTest, self.theta)
+            # YPred = self.sigmoid(a)
+            YPred = self.TrainModel.predict(XTest)
             YPred = [self.classify(pred) for pred in YPred]
-            YTest = [self.classify(test) for test in YTest]
+            print("YPred: ", YPred, " --------------------- ")
+            # YTest = [self.classify(test) for test in YTest]
             
             correct = 0
             for index in range(self.num_test_samples):

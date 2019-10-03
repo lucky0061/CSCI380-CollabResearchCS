@@ -24,12 +24,12 @@ class QModel:
             Vgate(self.para[2]) | q[0]
 
         results = eng.run(circuit, run_options={"eval": False})
-        output, _ = results.state.quad_expectation(0)
-        self.output = tf.Variable(0.0)
-        self.output = tf.assign(self.output,tf.add(self.output, output))
+        self.output,_ = results.state.quad_expectation(0)
+        # self.output = tf.Variable(0.0)
+        # self.output = tf.assign(self.output,tf.add(self.output, output))
         # self.output = tf.output
        
-        self.loss = tf.losses.mean_squared_error(labels=[output], predictions=self.y)
+        self.loss = tf.losses.mean_squared_error(labels=[self.output], predictions=self.y)
         # loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels = self.y, logits = [output]))
         optimizer = tf.train.AdamOptimizer(learning_rate=0.01)
 
@@ -59,7 +59,7 @@ class QModel:
     def predict(self,X):
         pred = []
         for i in range(len(X)):
-	        pred += self.sess.run(self.output,{self.x: X[i]})
+	        pred += [self.sess.run(self.output,{self.x: X[i]})]
         print("pred: ", pred, " +++++++++++++++ ")
         return pred
         

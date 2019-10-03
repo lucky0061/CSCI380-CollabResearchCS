@@ -90,7 +90,7 @@ class MAML(object):
         self.shift = 5
 
         #number of epochs i.e training iterations
-        self.epochs = 1
+        self.epochs = 20
         
         #hyperparameter for the inner loop (inner gradient update)
         self.alpha = 0.0001
@@ -135,11 +135,12 @@ class MAML(object):
 
             #for task i in batch of tasks
             for i in range(self.num_tasks):
+                println("Training Now <><><><><><><><><><><><><><><><<><><><><>")
 
                 #sample k data points and prepare our train set
                 XTrain, YTrain = sample_points_test()
-                print("XTrain: " + str(XTrain.tolist()))
-                print("YTrain: " + str(YTrain.tolist()))
+                # print("XTrain: " + str(XTrain.tolist()))
+                # print("YTrain: " + str(YTrain.tolist()))
                 # print(self.theta)
                 self.TrainModel.fit(XTrain,YTrain)
                 gradient = self.TrainModel.calc_grad(XTrain,YTrain)
@@ -174,8 +175,9 @@ class MAML(object):
 #                 YTest = Y_train[20:23]
                 # Meta =  QMetaOptimizer(session1, theta_[i])
                 # temp = Meta.fit(XMeta,YMeta)
-                print("Theta_[i]: ", theta_[i], " -------------------- ")
-                print("Theta_[i][0]: ", theta_[i][0], " -------------------- ")
+                # print("Theta_[i]: ", theta_[i], " -------------------- ")
+                # print("Theta_[i][0]: ", theta_[i][0], " -------------------- ")
+                print("Meta Now --------------------------------------------- ")
                 QMetaModel = QModel(self.MySess,tf.Variable(theta_[i][0]))
                 QMetaModel.fit(XMeta, YMeta)
                 meta_gradient += QMetaModel.calc_grad(XMeta, YMeta)[0]
@@ -195,12 +197,13 @@ class MAML(object):
         total_accuracy = 0
         
         for i in range(self.num_tasks):
+            println("Testing Now +_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_")
             XTest, YTest = sample_points_test()
             # a = np.matmul(XTest, self.theta)
             # YPred = self.sigmoid(a)
             YPred = self.TrainModel.predict(XTest)
             YPred = [self.classify(pred) for pred in YPred]
-            print("YPred: ", YPred, " --------------------- ")
+            # print("YPred: ", YPred, " --------------------- ")
             # YTest = [self.classify(test) for test in YTest]
             
             correct = 0

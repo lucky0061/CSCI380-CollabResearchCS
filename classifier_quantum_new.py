@@ -135,7 +135,7 @@ output = tf.round(circuit_output)
 X_train = df[['A.Open','A.High','A.Low','A.Close']]
 Y_train = df[['Y']]
 
-steps = 100
+steps = 1
 
 for i in range(steps):
     # if i % 10 == 0:
@@ -146,4 +146,5 @@ for i in range(steps):
 
 print("X       Prediction       Label")
 for i in range(4):
-    print("{0} || {1} || {2}".format(X_train[i], sess.run(output, feed_dict={X: X_train[i]}), Y_train[i]))
+	print("{0} || {1} || {2}".format(X_train[i], sess.run(output, feed_dict={X: X_train[i]}), Y_train[i]))
+	print(sess.runloss.shape)

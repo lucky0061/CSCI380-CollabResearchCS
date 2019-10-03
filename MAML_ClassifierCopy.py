@@ -35,7 +35,7 @@ def sample_points_test():
     y2 = np.array(y1.values.tolist())
     scaler0 = MinMaxScaler()
     scaler0.fit(x2)
-    x = x2.reshape(5,1)
+    x = scaler0.transform(x2).reshape(5,1)
     y = y2.reshape(5,1)
 #     x = np.array([x_ if random.random > .1 else random.random for x_ in scaler0.transform(x2)])
 #     y = np.array([y_ if random.random > .1 else random.choice([0, 1]) for y_ in scaler1.transform(y2)])
@@ -90,7 +90,7 @@ class MAML(object):
         self.shift = 5
 
         #number of epochs i.e training iterations
-        self.epochs = 100
+        self.epochs = 1
         
         #hyperparameter for the inner loop (inner gradient update)
         self.alpha = 0.0001
@@ -140,10 +140,9 @@ class MAML(object):
                 print("XTrain: " + str(XTrain.tolist()))
                 print("YTrain: " + str(YTrain.tolist()))
                 # print(self.theta)
-                gradient = None
-                for i in range(0,len(XTrain)):
-                    gradient = self.TrainModel.calc_grad(XTrain[i],YTrain[i])
-                
+                self.TrainModel.fit(XTrain,YTrain)
+                gradient = self.TrainModel.calc_grad()
+                print(gradient)
 #                 a = np.matmul(XTrain, self.theta)
                 
 # #                 print(a)

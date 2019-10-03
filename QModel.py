@@ -10,32 +10,43 @@ class QModel:
     def __init__(self, session):
         self.x = tf.placeholder(tf.float32, shape = [1])
         self.y = tf.placeholder(tf.float32, shape = [1])
-        para = tf.Variable([0.1]*3)
+        self.para = tf.Variable([0.1]*3)
         eng = sf.Engine(backend="tf", backend_options={"cutoff_dim": 7})
-        circuit = sf.Program(5)
+        circuit = sf.Program(1)
 
         with circuit.context as q: 
             Dgate(self.x[0]) | q[0]
 
-            Dgate(para[0]) | q[0]
+            Dgate(self.para[0]) | q[0]
 
-            Sgate(para[1]) | q[0]
+            Sgate(self.para[1]) | q[0]
 
-            Vgate(para[2]) | q[0]
+            Vgate(self.para[2]) | q[0]
 
         results = eng.run(circuit, run_options={"eval": False})
         output, _ = results.state.quad_expectation(0)
-
-        loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels = self.y, logits = [output]))
+       
+        self.loss = tf.losses.mean_squared_error(labels=[output], predictions=self.y)
+        # loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels = self.y, logits = [output]))
         optimizer = tf.train.AdamOptimizer(learning_rate=0.01)
-        self.train = optimizer.minimize(loss)
-        self.sess = session
 
-    def calc_grad(self,X_j, Y_j):
+        self.train = optimizer.minimize(self.loss)
+        self.sess = session
         self.sess.run(tf.global_variables_initializer())
-        grad,_ = self.sess.run(self.train, feed_dict={self.x: X_j, self.y: Y_j})
-        return tf.reshape(grad, [3,1])
+
+    def calc_grad(self):
+        print("train ", self.train,  " ------------------- ")
+        grad = tf.gradients(self.loss, self.para)[0]
+        return self.sess.run(grad)
         
+    def fit(self,X, Y):
+        # grad,_ = self.sess.run(self.train, {self.x: X_j, self.y: Y_j})
+        for i in range(len(X)):
+            self.sess.run(self.train, {self.x: X[i], self.y: Y[i]})
+        # return tf.reshape(grad, [3,1])
+    # def fit(X_j, Y_j, sess):
+        # sess.run(train, {x: [X_j], y: [Y_j]})
+        # return sess.run(cross_entropy, {x: [X_j], y: [Y_j]})
     def predict(self,X_j):
 	    return self.sess.run(output,{x: [X_j]} )
         
@@ -88,7 +99,7 @@ class QMetaOptimizer:
         train = optimizer.minimize(loss)
         self.sess = session
 
-        def fit(selfX_j, Y_j):
+        def fit(self,X_j, Y_j):
             self.sess.run(tf.global_variables_initializer())
             self.sess.run(train, {x: [X_j], y: [Y_j]})
             return tf.reshape(para, [3,1])

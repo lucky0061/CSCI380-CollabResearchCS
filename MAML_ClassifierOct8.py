@@ -57,6 +57,22 @@ def sample_points_test():
 # #     y = np.array([y_ if random.random > .1 else random.choice([0, 1]) for y_ in scaler1.transform(y2)])
 #     y = y2
 #     return x,y
+def sample_points_train():
+    k = random.randint(0,19)
+    l = k + 20
+    x1 = df.loc[k:l-1,['A.Close']]
+    y1 = df.loc[k:l-1,['Class']]
+    x2 = np.array(x1.values.tolist())
+    y2 = np.array(y1.values.tolist())
+    scaler0 = MinMaxScaler()
+    scaler0.fit(x2)
+    x_ = scaler0.transform(x2).reshape(20,1)
+    y = y2.reshape(20,1)
+    # x = np.array([x_ if np.random.random_sample > .1 else random.random for x_ in scaler0.transform(x2)])
+    x = np.array([x_ if np.random.random_sample() > .1 else np.random.random_sample((len(x_)))]).reshape(20,1)
+    # YPred = [self.classify(pred) for pred in YPred]
+#     y = np.array([y_ if random.random > .1 else random.choice([0, 1]) for y_ in scaler1.transform(y2)])
+    return x,y
 
 def mkWindows(train_size, meta_size, test_size, data_length, shift = 0):
     index = 0
@@ -80,7 +96,7 @@ class MAML(object):
     def __init__(self, session):
         
         #initialize number of tasks i.e number of tasks we need in each batch of tasks
-        self.num_tasks = 5
+        self.num_tasks = 20
         
         #number of samples i.e number of shots  -number of data points (k) we need to have in each task
         self.num_train_samples = 5
@@ -90,7 +106,7 @@ class MAML(object):
         self.shift = 5
 
         #number of epochs i.e training iterations
-        self.epochs = 20
+        self.epochs = 10
         
         #hyperparameter for the inner loop (inner gradient update)
         self.alpha = 0.0001
@@ -138,7 +154,7 @@ class MAML(object):
                 print("Training Now <><><><><><><><><><><><><><><><<><><><><>")
 
                 #sample k data points and prepare our train set
-                XTrain, YTrain = sample_points_test()
+                XTrain, YTrain = sample_points_train()
                 # print("XTrain: " + str(XTrain.tolist()))
                 # print("YTrain: " + str(YTrain.tolist()))
                 # print(self.theta)

@@ -10,7 +10,7 @@ import seaborn as sns
 sns.set()
 
 import os
-os.chdir("C:/GitHub/Stock-Prediction-Models/agent")
+os.chdir("C:/GitHub/CSCI380-CollabResearchCS/NES_Meta")
 # In[2]:
 
 
@@ -81,7 +81,7 @@ plt.show()
 
 
 import pandas as pd
-google = pd.read_csv('../dataset/GOOG.csv')
+google = pd.read_csv('dataset/GOOG.csv')
 google.head()
 
 

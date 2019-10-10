@@ -96,7 +96,7 @@ class MAML(object):
     def __init__(self, session):
         
         #initialize number of tasks i.e number of tasks we need in each batch of tasks
-        self.num_tasks = 20
+        self.num_tasks = 5
         
         #number of samples i.e number of shots  -number of data points (k) we need to have in each task
         self.num_train_samples = 5

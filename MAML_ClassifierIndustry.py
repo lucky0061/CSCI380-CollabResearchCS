@@ -9,8 +9,18 @@ from QModel import QModel
 
 
 
-df = pd.read_csv('A.csv')
-df = df.drop(df.columns[0], axis =1)
+df0 = pd.read_csv('A.csv')
+df0 = df0.drop(df0.columns[0], axis =1)
+df1 = pd.read_csv('DVA.csv')
+df1 = df1.drop(df1.columns[0], axis =1)
+df2 = pd.read_csv('XRAY.csv')
+df2 = df2.drop(df2.columns[0], axis =1)
+df3 = pd.read_csv('GRMN.csv')
+df3 = df3.drop(df3.columns[0], axis =1)
+df4 = pd.read_csv('MAC.csv')
+df4 = df4.drop(df4.columns[0], axis =1)
+
+dfs = [df0,df1,df2,df3,df4]
 
 # def sample_points(k, l):
 #     x1 = df.loc[k:l-1,['A.Open', 'A.High', 'A.Low', 'A.Close', 'A.Volume', 'A.Adjusted']]
@@ -26,7 +36,7 @@ df = df.drop(df.columns[0], axis =1)
 #     return x,y
 
 # Temporary
-def sample_points_test():
+def sample_points_test(df):
     k = random.randint(0,14)
     l = k + 5
     x1 = df.loc[k:l-1,['A.Close']]
@@ -170,7 +180,7 @@ class MAML(object):
             for i in range(self.num_tasks):
 
                 #sample k data points and prepare our test set for meta training
-                XMeta, YMeta = sample_points_test()
+                XMeta, YMeta = sample_points_test(dfs[i])
 #                 XTest = X_train[20:23]
 #                 YTest = Y_train[20:23]
                 # Meta =  QMetaOptimizer(session1, theta_[i])
@@ -198,7 +208,7 @@ class MAML(object):
         
         for i in range(self.num_tasks):
             print("Testing Now +_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_")
-            XTest, YTest = sample_points_test()
+            XTest, YTest = sample_points_test(dfs[i])
             # a = np.matmul(XTest, self.theta)
             # YPred = self.sigmoid(a)
             YPred = self.TrainModel.predict(XTest)

@@ -39,8 +39,8 @@ dfs = [df0,df1,df2,df3,df4]
 def sample_points_test(df):
     k = random.randint(0,14)
     l = k + 5
-    x1 = df.loc[k:l-1,['A.Close']]
-    y1 = df.loc[k:l-1,['Class']]
+    x1 = df.iloc[k:l-1,[3]]
+    y1 = df.iloc[k:l-1,[8]]
     x2 = np.array(x1.values.tolist())
     y2 = np.array(y1.values.tolist())
     scaler0 = MinMaxScaler()
@@ -100,7 +100,7 @@ class MAML(object):
         self.shift = 5
 
         #number of epochs i.e training iterations
-        self.epochs = 20
+        self.epochs = 1
         
         #hyperparameter for the inner loop (inner gradient update)
         self.alpha = 0.0001
@@ -148,7 +148,8 @@ class MAML(object):
                 print("Training Now <><><><><><><><><><><><><><><><<><><><><>")
 
                 #sample k data points and prepare our train set
-                XTrain, YTrain = sample_points_test()
+                XTrain, YTrain = sample_points_test(dfs[i])
+                # print("SHAPE XTrain:", XTrain.shape)
                 # print("XTrain: " + str(XTrain.tolist()))
                 # print("YTrain: " + str(YTrain.tolist()))
                 # print(self.theta)

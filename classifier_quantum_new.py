@@ -127,23 +127,25 @@ minimize_op = optimizer.minimize(loss)
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 output = tf.round(circuit_output)
+# output = circuit_output
 
 # Generate some data
-##X_train = [[0.2, 0.4], [0.6, 0.8], [0.4, 0.2], [0.8, 0.6]]
-##Y_train = [[0, 1], [0, 1], [1, 0], [1, 0]]
+X_train = [[0.2, 0.4], [0.6, 0.8], [0.4, 0.2], [0.8, 0.6]]
+Y_train = [[0, 1], [0, 1], [1, 0], [1, 0]]
 # X_train = df[['A.Open','A.High','A.Low','A.Close','A.Volume', 'A.Adjusted']]
-X_train = df[['A.Open','A.High','A.Low','A.Close']]
-Y_train = df[['Y']]
+# X_train = df[['A.Open','A.High','A.Low','A.Close']]
+# Y_train = df[['Y']]
 
-steps = 100
+steps = 1
 
 for i in range(steps):
     # if i % 10 == 0:
         # print("Epoch {0}, Loss {1}".format(i, sess.run([loss], feed_dict={X: X_train[0], y: Y_train[0]})[0]))
     for j in range(len(Y_train)):
-        sess.run([minimize_op], feed_dict={X: X_train.loc[j], y: Y_train.iloc[j]})
-    
-
+		# sess.run([minimize_op], feed_dict={X: X_train.loc[j], y: Y_train.iloc[j]})
+		sess.run([minimize_op], feed_dict={X: X_train[j], y: Y_train[j]})
+		
 print("X       Prediction       Label")
 for i in range(4):
-    print("{0} || {1} || {2}".format(X_train[i], sess.run(output, feed_dict={X: X_train[i]}), Y_train[i]))
+	print("{0} || {1} || {2}".format(X_train[i], sess.run(output, feed_dict={X: X_train[i]}), Y_train[i]))
+	print(sess.runloss.shape)

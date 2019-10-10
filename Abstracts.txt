@@ -1,0 +1,21 @@
+Learning to Forget for Meta-Learning
+
+In meta-learning, the idea of selective "forgetting" is used to improve the performance of adapting to new tasks. Few-shot learning aims to achieve something using only a few
+samples. Meta-learning does this by learning shared information between different task. However, forcing these commonalities into the initial state hinders the fast learning 
+process, possibilly due to the fact that the conflicts between the tasks makes generalization a good starting point for all tasks impossible. MAML struggles in this regart.
+This idea proposes that instead of an initialization that is the same for all tasks, we have a task-dependent initialization. This is done by learning what needs to be forgotten,
+in order to improve the learning process of the learning. The results of this idea have been very successful.
+
+Learning to Adapt in Dynamic, Real-World Environments Through Meta-Reinforcement Learning
+
+Reinforcement learning has proven to being effective, but susceptable failure in a dynamic, real-world environment. It also becomes expensive to generate samples, and thus
+impractical to create a seperate policy for each of the possible scenarioes. To overcome this, the new approach uses meta-learning to train a dynamics model that can easily adapt
+to an environment that continuously changes. Results show that models can adapt while running under continuous controls on simulated and real-world agents. It show that a real
+legged millirobot can adapt to multiple stituations after losing a leg.
+
+How to Train Your MAML
+
+Model Agnostic Meta Learning or MAML is one of the most successful examples of few-shot learning using meta-learning. But along with it's simplicity, elegancy and efficacy, it comes
+with problems too. MAML is extremely sensitive to neural network architechures which could lead to instability in training. Restablizing the training and achieving high generality 
+would require computationally expensive searches through the hyperparameter values. Because of this, MAML++ has been developed as a modification to MAML that has show to offer stability 
+and improvement in learning and computation.

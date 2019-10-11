@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set()
 
+# Needed for
 import os
 os.chdir("C:/GitHub/CSCI380-CollabResearchCS/NES_Meta")
 # In[2]:
@@ -120,6 +121,7 @@ get_state(close, 2, 10)
 
 
 class Deep_Evolution_Strategy:
+
     def __init__(
         self, weights, reward_function, population_size, sigma, learning_rate
     ):
@@ -128,6 +130,8 @@ class Deep_Evolution_Strategy:
         self.population_size = population_size
         self.sigma = sigma
         self.learning_rate = learning_rate
+        self.theta = np.random.normal(size=population_size).reshape(population_size, 1)
+
 
     def _get_weight_from_population(self, weights, population):
         weights_population = []
@@ -165,12 +169,18 @@ class Deep_Evolution_Strategy:
 
             for index, w in enumerate(self.weights):
                 A = np.array([p[index] for p in population])
+                gradient = np.dot(A.T, rewards).T / (self.population_size * self.sigma)
                 self.weights[index] = (
                     w
                     + self.learning_rate
-                    / (self.population_size * self.sigma)
-                    * np.dot(A.T, rewards).T ###### Our task is to make this line meta by storing each gradient into a global gradient from the MAML paper
+                    * gradient  ###### Our task is to make this line meta by storing each gradient into a global gradient from the MAML paper
                 )
+
+                self.theta_.append(self.theta - gradient)
+
+        # # Update the global meta theta that is the average gradient
+        # self.theta.append(np.mean(self.theta_))
+
             if (i + 1) % print_every == 0:
                 print(
                     'iter %d. reward: %f'
@@ -405,20 +415,22 @@ class Agent:
 
 model = Model(input_size = window_size, layer_size = 500, output_size = 3)
 
+
+# Run the below code 20 times on each data set changing close dataset
 agent = Agent(
     model = model,
     money = 10000,
     max_buy = 5,
     max_sell = 5,
-    close = close,
+    close = close, # This is the data
     window_size = window_size,
-    skip = 1,
+    skip = 1
 )
 
 
 # In[32]:
 
-
+# want to run this 20 times over each data set...
 agent.fit(iterations = 500, checkpoint = 10)
 
 

@@ -120,6 +120,7 @@ class MAML(object):
             #initialize meta gradients
             meta_gradient = np.zeros(self.theta.shape)
 
+            # Line 8
             for i in range(self.num_tasks):
 
                 #sample k data points and prepare our test set for meta training

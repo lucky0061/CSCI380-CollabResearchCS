@@ -9,8 +9,18 @@ from QModel import QModel
 
 
 
-df = pd.read_csv('A.csv')
-df = df.drop(df.columns[0], axis =1)
+df0 = pd.read_csv('A.csv')
+df0 = df0.drop(df0.columns[0], axis =1)
+df1 = pd.read_csv('DVA.csv')
+df1 = df1.drop(df1.columns[0], axis =1)
+df2 = pd.read_csv('XRAY.csv')
+df2 = df2.drop(df2.columns[0], axis =1)
+df3 = pd.read_csv('GRMN.csv')
+df3 = df3.drop(df3.columns[0], axis =1)
+df4 = pd.read_csv('MAC.csv')
+df4 = df4.drop(df4.columns[0], axis =1)
+
+dfs = [df0,df1,df2,df3,df4]
 
 # def sample_points(k, l):
 #     x1 = df.loc[k:l-1,['A.Open', 'A.High', 'A.Low', 'A.Close', 'A.Volume', 'A.Adjusted']]
@@ -26,11 +36,11 @@ df = df.drop(df.columns[0], axis =1)
 #     return x,y
 
 # Temporary
-def sample_points_test():
+def sample_points_test(df):
     k = random.randint(0,14)
     l = k + 5
-    x1 = df.loc[k:l-1,['A.Close']]
-    y1 = df.loc[k:l-1,['Class']]
+    x1 = df.iloc[k:l-1,[3]]
+    y1 = df.iloc[k:l-1,[8]]
     x2 = np.array(x1.values.tolist())
     y2 = np.array(y1.values.tolist())
     scaler0 = MinMaxScaler()
@@ -57,22 +67,6 @@ def sample_points_test():
 # #     y = np.array([y_ if random.random > .1 else random.choice([0, 1]) for y_ in scaler1.transform(y2)])
 #     y = y2
 #     return x,y
-def sample_points_train():
-    k = random.randint(0,19)
-    l = k + 20
-    x1 = df.loc[k:l-1,['A.Close']]
-    y1 = df.loc[k:l-1,['Class']]
-    x2 = np.array(x1.values.tolist())
-    y2 = np.array(y1.values.tolist())
-    scaler0 = MinMaxScaler()
-    scaler0.fit(x2)
-    x_ = scaler0.transform(x2).reshape(20,1)
-    y = y2.reshape(20,1)
-    # x = np.array([x_ if np.random.random_sample > .1 else random.random for x_ in scaler0.transform(x2)])
-    x = np.array([x_ if np.random.random_sample() > .1 else np.random.random_sample((len(x_)))]).reshape(20,1)
-    # YPred = [self.classify(pred) for pred in YPred]
-#     y = np.array([y_ if random.random > .1 else random.choice([0, 1]) for y_ in scaler1.transform(y2)])
-    return x,y
 
 def mkWindows(train_size, meta_size, test_size, data_length, shift = 0):
     index = 0
@@ -106,7 +100,7 @@ class MAML(object):
         self.shift = 5
 
         #number of epochs i.e training iterations
-        self.epochs = 10
+        self.epochs = 1
         
         #hyperparameter for the inner loop (inner gradient update)
         self.alpha = 0.0001
@@ -154,7 +148,8 @@ class MAML(object):
                 print("Training Now <><><><><><><><><><><><><><><><<><><><><>")
 
                 #sample k data points and prepare our train set
-                XTrain, YTrain = sample_points_train()
+                XTrain, YTrain = sample_points_test(dfs[i])
+                # print("SHAPE XTrain:", XTrain.shape)
                 # print("XTrain: " + str(XTrain.tolist()))
                 # print("YTrain: " + str(YTrain.tolist()))
                 # print(self.theta)
@@ -186,7 +181,7 @@ class MAML(object):
             for i in range(self.num_tasks):
 
                 #sample k data points and prepare our test set for meta training
-                XMeta, YMeta = sample_points_test()
+                XMeta, YMeta = sample_points_test(dfs[i])
 #                 XTest = X_train[20:23]
 #                 YTest = Y_train[20:23]
                 # Meta =  QMetaOptimizer(session1, theta_[i])
@@ -214,7 +209,7 @@ class MAML(object):
         
         for i in range(self.num_tasks):
             print("Testing Now +_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_")
-            XTest, YTest = sample_points_test()
+            XTest, YTest = sample_points_test(dfs[i])
             # a = np.matmul(XTest, self.theta)
             # YPred = self.sigmoid(a)
             YPred = self.TrainModel.predict(XTest)

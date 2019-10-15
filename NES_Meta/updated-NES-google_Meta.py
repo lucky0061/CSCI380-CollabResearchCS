@@ -11,7 +11,7 @@ sns.set()
 
 # Needed for
 import os
-os.chdir("C:/GitHub/CSCI380-CollabResearchCS/NES_Meta")
+os.chdir("D:/GitHub/CSCI380-CollabResearchCS/NES_Meta")
 # In[2]:
 
 
@@ -123,15 +123,14 @@ get_state(close, 2, 10)
 class Deep_Evolution_Strategy:
 
     def __init__(
-        self, weights, reward_function, population_size, sigma, learning_rate
+        self, weights, reward_function, population_size, sigma, learning_rate, theta
     ):
         self.weights = weights
         self.reward_function = reward_function
         self.population_size = population_size
         self.sigma = sigma
         self.learning_rate = learning_rate
-        self.theta = np.random.normal(size=population_size).reshape(population_size, 1)
-
+        self.theta = theta
 
     def _get_weight_from_population(self, weights, population):
         weights_population = []
@@ -169,14 +168,15 @@ class Deep_Evolution_Strategy:
 
             for index, w in enumerate(self.weights):
                 A = np.array([p[index] for p in population])
-                gradient = np.dot(A.T, rewards).T / (self.population_size * self.sigma)
+                gradient = np.dot(A.T, rewards).T / (self.population_size * self.sigma) # This is the shape of the NN layer
                 self.weights[index] = (
                     w
                     + self.learning_rate
                     * gradient  ###### Our task is to make this line meta by storing each gradient into a global gradient from the MAML paper
                 )
 
-                self.theta_.append(self.theta - gradient)
+                print(np.shape(gradient))
+                self.theta_.append(self.theta[index] - gradient)
 
         # # Update the global meta theta that is the average gradient
         # self.theta.append(np.mean(self.theta_))
@@ -201,6 +201,13 @@ class Model:
             np.random.randn(1, layer_size),
         ]
 
+        self.theta = [
+            np.random.randn(input_size, layer_size),
+            np.random.randn(layer_size, output_size),
+            np.random.randn(layer_size, 1),
+            np.random.randn(1, layer_size),
+        ]
+
     # decision is to buy or sell, buy is how much to buy or sell
     def predict(self, inputs):
         feed = np.dot(inputs, self.weights[0]) + self.weights[-1]
@@ -214,9 +221,14 @@ class Model:
     def set_weights(self, weights):
         self.weights = weights
 
+    def get_theta(self):
+        return self.theta
+
+    def set_theta(self, theta):
+        self.theta = theta
+
 
 # In[28]:
-
 
 window_size = 30
 model = Model(window_size, 500, 3)
@@ -299,6 +311,7 @@ class Agent:
             self.POPULATION_SIZE,
             self.SIGMA,
             self.LEARNING_RATE,
+            self.model.get_theta(),
         )
 
     def act(self, sequence):

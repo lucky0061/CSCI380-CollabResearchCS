@@ -58,7 +58,7 @@ def sample_points_test():
 #     y = y2
 #     return x,y
 def sample_points_train():
-    k = random.randint(0,19)
+    k = random.randint(0,len(df)-21)
     l = k + 20
     x1 = df.loc[k:l-1,['A.Close']]
     y1 = df.loc[k:l-1,['Class']]
@@ -66,6 +66,7 @@ def sample_points_train():
     y2 = np.array(y1.values.tolist())
     scaler0 = MinMaxScaler()
     scaler0.fit(x2)
+    # print(x2.shape)
     x_ = scaler0.transform(x2).reshape(20,1)
     y = y2.reshape(20,1)
     # x = np.array([x_ if np.random.random_sample > .1 else random.random for x_ in scaler0.transform(x2)])

@@ -22,6 +22,9 @@ df4 = df4.drop(df4.columns[0], axis =1)
 
 dfs = [df0,df1,df2,df3,df4]
 
+df5 = pd.read_csv('XEC.csv')
+df5 = df5.drop(df5.columns[0], axis = 1)
+
 # def sample_points(k, l):
 #     x1 = df.loc[k:l-1,['A.Open', 'A.High', 'A.Low', 'A.Close', 'A.Volume', 'A.Adjusted']]
 #     y1 = df.loc[k:l-1,['Y']]
@@ -36,17 +39,18 @@ dfs = [df0,df1,df2,df3,df4]
 #     return x,y
 
 # Temporary
-def sample_points_test(df):
-    k = random.randint(0,14)
-    l = k + 5
-    x1 = df.iloc[k:l-1,[3]]
-    y1 = df.iloc[k:l-1,[8]]
+def sample_points_test(df,k=-1,l=-1):
+    if(k==-1 or l==-1):
+        k = random.randint(0,len(df)-21)
+        l = k + 20
+    x1 = df.iloc[k:l,[3]]
+    y1 = df.iloc[k:l,[8]]
     x2 = np.array(x1.values.tolist())
     y2 = np.array(y1.values.tolist())
     scaler0 = MinMaxScaler()
     scaler0.fit(x2)
-    x = scaler0.transform(x2).reshape(5,1)
-    y = y2.reshape(5,1)
+    x = scaler0.transform(x2).reshape(l-k,1)
+    y = y2.reshape(l-k,1)
 #     x = np.array([x_ if random.random > .1 else random.random for x_ in scaler0.transform(x2)])
 #     y = np.array([y_ if random.random > .1 else random.choice([0, 1]) for y_ in scaler1.transform(y2)])
     return x,y
@@ -100,13 +104,15 @@ class MAML(object):
         self.shift = 5
 
         #number of epochs i.e training iterations
-        self.epochs = 1
+        self.epochs = 10
         
         #hyperparameter for the inner loop (inner gradient update)
-        self.alpha = 0.0001
+        # self.alpha = 0.0001
+        self.alpha = 0.001
         
         #hyperparameter for the outer loop (outer gradient update) i.e meta optimization
-        self.beta = 0.0001
+        # self.beta = 0.0001
+        self.beta = 0.001
        
         #randomly initialize our model parameter theta
         # self.theta = np.random.normal(size=1).reshape(1, 1)
@@ -140,12 +146,13 @@ class MAML(object):
     def train(self):
         #for the number of epochs,
         for e in range(self.epochs):        
-
+            print("Epoch: ", e)
             theta_ = []
+            print("Training Now <><><><><><><><><><><><><><><><<><><><><>")
 
             #for task i in batch of tasks
             for i in range(self.num_tasks):
-                print("Training Now <><><><><><><><><><><><><><><><<><><><><>")
+               
 
                 #sample k data points and prepare our train set
                 XTrain, YTrain = sample_points_test(dfs[i])
@@ -204,31 +211,36 @@ class MAML(object):
 
             #update our randomly initialized model parameter theta with the meta gradients
             self.theta = self.theta-self.beta*meta_gradient/self.num_tasks
-            
+    def test(self,df):     
         total_accuracy = 0
         
-        for i in range(self.num_tasks):
-            print("Testing Now +_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_")
-            XTest, YTest = sample_points_test(dfs[i])
-            # a = np.matmul(XTest, self.theta)
-            # YPred = self.sigmoid(a)
-            YPred = self.TrainModel.predict(XTest)
-            YPred = [self.classify(pred) for pred in YPred]
-            # print("YPred: ", YPred, " --------------------- ")
-            # YTest = [self.classify(test) for test in YTest]
-            
-            correct = 0
-            for index in range(self.num_test_samples):
-                if YPred[index] == YTest[index]: correct += 1
-            accuracy = (correct/self.num_test_samples) * 100
-            print("Predicted {}".format(YPred))
-            print("Actual {}".format(YTest))
-            print("Accuracy {}%\n".format(accuracy))
-            
-            total_accuracy += accuracy
+        
+        # for i in range(self.num_tasks):
+        train_start = random.randint(0,len(df)-21)
+        XTrain, YTrain = sample_points_test(df,train_start,train_start+15)
+        self.TrainModel.fit(XTrain,YTrain)
+        print("Testing Now +_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_")
+        XTest, YTest = sample_points_test(df, train_start+15,train_start+20 )
+        # a = np.matmul(XTest, self.theta)
+        # YPred = self.sigmoid(a)
+        YPred = self.TrainModel.predict(XTest)
+        YPred = [self.classify(pred) for pred in YPred]
+        # print("YPred: ", YPred, " --------------------- ")
+        # YTest = [self.classify(test) for test in YTest]
+        
+        correct = 0
+        for index in range(self.num_test_samples):
+            if YPred[index] == YTest[index]: correct += 1
+        accuracy = (correct/self.num_test_samples) * 100
+        print("Predicted {}".format(YPred))
+        print("Actual {}".format(YTest))
+        print("Accuracy {}%\n".format(accuracy))
+        
+        total_accuracy += accuracy
 
-        total_accuracy = total_accuracy / self.num_tasks
+        # total_accuracy = total_accuracy / self.num_tasks
         print("Total accuracy {}%".format(total_accuracy))
         
 model = MAML(tf.Session())
 model.train()
+model.test(df5)

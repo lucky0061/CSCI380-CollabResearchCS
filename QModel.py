@@ -7,24 +7,35 @@ import strawberryfields as sf
 from strawberryfields.ops import *
 import tensorflow as tf 
 class QModel:
-    def __init__(self, session,theta = tf.Variable([0.1]*3) ):
-        self.x = tf.placeholder(tf.float32, shape = [1])
+    def __init__(self, session, theta):
+        self.x = tf.placeholder(tf.float32, shape = [2])
         self.y = tf.placeholder(tf.float32, shape = [1])
-        self.para = theta
+        self.para = tf.Variable(theta)
         eng = sf.Engine(backend="tf", backend_options={"cutoff_dim": 7})
-        circuit = sf.Program(1)
+        circuit = sf.Program(2)
 
         with circuit.context as q: 
             Dgate(self.x[0]) | q[0]
+            Dgate(self.x[1]) | q[1]
 
-            Dgate(self.para[0]) | q[0]
+            Dgate(self.para[2]) | q[0]
+            Dgate(self.para[3]) | q[1]
 
-            Sgate(self.para[1]) | q[0]
+            Sgate(self.para[4]) | q[0]
+            Sgate(self.para[5]) | q[1]
 
-            Vgate(self.para[2]) | q[0]
+            Vgate(self.para[6]) | q[0]
+            Vgate(self.para[7]) | q[1]
+
+            BSgate(self.para[8]) | (q[0], q[1])
+	        BSgate() | (q[0], q[1])
 
         results = eng.run(circuit, run_options={"eval": False})
-        self.output,_ = results.state.quad_expectation(0)
+        # self.output,_ = results.state.quad_expectation(0)
+        output0,_ = results.state.quad_expectation(0)
+        output1,_ = results.state.quad_expectation(1)
+        norm = output0 + output1 + 1e-10
+        self.output = output0 / norm
         # self.output = tf.Variable(0.0)
         # self.output = tf.assign(self.output,tf.add(self.output, output))
         # self.output = tf.output

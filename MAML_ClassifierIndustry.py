@@ -39,18 +39,22 @@ df5 = df5.drop(df5.columns[0], axis = 1)
 #     return x,y
 
 # Temporary
-def sample_points_test(df,k=-1,l=-1):
-    if(k==-1 or l==-1):
-        k = random.randint(0,len(df)-21)
-        l = k + 20
-    x1 = df.iloc[k:l,[3]]
-    y1 = df.iloc[k:l,[8]]
-    x2 = np.array(x1.values.tolist())
-    y2 = np.array(y1.values.tolist())
+def sample_points(df,size):
+    start = random.randint(0,len(df)-size)
+    end = start + size
+    x1 = df.iloc[start:end,[3]]
+    x2 = df.iloc[start:end,[5]]
+    y1 = df.iloc[start:end,[8]]
+    x1 = np.array(x1.values.tolist())
+    y1 = np.array(y1.values.tolist())
+    x2 = np.array(x2.values.tolist())
     scaler0 = MinMaxScaler()
-    scaler0.fit(x2)
-    x = scaler0.transform(x2).reshape(l-k,1)
-    y = y2.reshape(l-k,1)
+    scaler0.fit(x1)
+    scaler1 = MinMaxScaler()
+    scaler1.fit(x2)
+    # x = [scaler0.transform(x1).reshape(size,1),scaler1.transform(x2).reshape(size,1)]
+    x = [scaler0.transform(x1),scaler1.transform(x2)]
+    y = y2.reshape(size,1)
 #     x = np.array([x_ if random.random > .1 else random.random for x_ in scaler0.transform(x2)])
 #     y = np.array([y_ if random.random > .1 else random.choice([0, 1]) for y_ in scaler1.transform(y2)])
     return x,y
@@ -119,7 +123,8 @@ class MAML(object):
         self.sdev = 0.05
         self.depth = 80
         # self.theta = tf.Variable(tf.random_normal(shape=[1,1], stddev=self.sdev))
-        self.theta = np.random.normal(size=3).reshape(3)
+        # self.theta = np.random.normal(size=3).reshape(3)
+        self.theta = np.random.normal(size=9) # tf.Variable([0.1]*9) 
         
         # self.windows = mkWindows(self.num_train_samples,self.num_meta_samples,
         #                          self.num_test_samples,self.data_length,self.shift)
@@ -132,7 +137,7 @@ class MAML(object):
 
         # eng, q = sf.Engine(3)
         self.MySess = session
-        self.TrainModel = QModel(self.MySess)
+        # self.TrainModel = QModel(self.MySess)       # make new one every time     
         # self.MetaModel = QMetaOptimizer(session1)
       
     #define our sigmoid activation function  
@@ -152,10 +157,11 @@ class MAML(object):
 
             #for task i in batch of tasks
             for i in range(self.num_tasks):
+                TrainModel = QModel(self.MySess, self.theta)
                
 
                 #sample k data points and prepare our train set
-                XTrain, YTrain = sample_points_test(dfs[i])
+                XTrain, YTrain = sample_points(dfs[i],20)
                 # print("SHAPE XTrain:", XTrain.shape)
                 # print("XTrain: " + str(XTrain.tolist()))
                 # print("YTrain: " + str(YTrain.tolist()))
@@ -188,7 +194,7 @@ class MAML(object):
             for i in range(self.num_tasks):
 
                 #sample k data points and prepare our test set for meta training
-                XMeta, YMeta = sample_points_test(dfs[i])
+                XMeta, YMeta = sample_points(dfs[i],20)
 #                 XTest = X_train[20:23]
 #                 YTest = Y_train[20:23]
                 # Meta =  QMetaOptimizer(session1, theta_[i])
@@ -211,25 +217,27 @@ class MAML(object):
 
             #update our randomly initialized model parameter theta with the meta gradients
             self.theta = self.theta-self.beta*meta_gradient/self.num_tasks
-    def test(self,df):     
+    def test(self,df, SampleSize, TestSize):     
         total_accuracy = 0
         
-        
+        TestModel = QModel(self.MySess, self.theta)
         # for i in range(self.num_tasks):
-        train_start = random.randint(0,len(df)-21)
-        XTrain, YTrain = sample_points_test(df,train_start,train_start+15)
-        self.TrainModel.fit(XTrain,YTrain)
+        train_start = random.randint(0,TrainSize)
+        train_end = train_start + SampleSize
+        test_end = train_end + TestSize
+        XTrain, YTrain = sample_points(df,SampleSize)
+        self.TestModel.fit(XTrain,YTrain)
         print("Testing Now +_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_")
-        XTest, YTest = sample_points_test(df, train_start+15,train_start+20 )
+        XTest, YTest = sample_points(df, TestSize)
         # a = np.matmul(XTest, self.theta)
         # YPred = self.sigmoid(a)
-        YPred = self.TrainModel.predict(XTest)
+        YPred = self.TestModel.predict(XTest)
         YPred = [self.classify(pred) for pred in YPred]
         # print("YPred: ", YPred, " --------------------- ")
         # YTest = [self.classify(test) for test in YTest]
         
         correct = 0
-        for index in range(self.num_test_samples):
+        for index in range(0,TestSize):
             if YPred[index] == YTest[index]: correct += 1
         accuracy = (correct/self.num_test_samples) * 100
         print("Predicted {}".format(YPred))
@@ -243,4 +251,4 @@ class MAML(object):
         
 model = MAML(tf.Session())
 model.train()
-model.test(df5)
+model.test(df5, 20, 5)

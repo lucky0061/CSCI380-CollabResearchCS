@@ -53,8 +53,10 @@ def sample_points(df,size):
     scaler1 = MinMaxScaler()
     scaler1.fit(x2)
     # x = [scaler0.transform(x1).reshape(size,1),scaler1.transform(x2).reshape(size,1)]
-    x = [scaler0.transform(x1),scaler1.transform(x2)]
-    y = y2.reshape(size,1)
+    # x = [scaler0.transform(x1),scaler1.transform(x2)]
+    # [list(a) for a in zip([1,2,3], [4,5,6], [7,8,9])]
+    x = np.array([a for a in zip(scaler0.transform(x1),scaler1.transform(x2))])
+    y = y1.reshape(size,1)
 #     x = np.array([x_ if random.random > .1 else random.random for x_ in scaler0.transform(x2)])
 #     y = np.array([y_ if random.random > .1 else random.choice([0, 1]) for y_ in scaler1.transform(y2)])
     return x,y
@@ -124,7 +126,7 @@ class MAML(object):
         self.depth = 80
         # self.theta = tf.Variable(tf.random_normal(shape=[1,1], stddev=self.sdev))
         # self.theta = np.random.normal(size=3).reshape(3)
-        self.theta = np.random.normal(size=9) # tf.Variable([0.1]*9) 
+        self.theta = np.random.normal(size=7) # tf.Variable([0.1]*9) 
         
         # self.windows = mkWindows(self.num_train_samples,self.num_meta_samples,
         #                          self.num_test_samples,self.data_length,self.shift)
@@ -151,9 +153,11 @@ class MAML(object):
     def train(self):
         #for the number of epochs,
         for e in range(self.epochs):        
-            print("Epoch: ", e)
+            print("Epoch: ", e+1)
             theta_ = []
-            print("Training Now <><><><><><><><><><><><><><><><<><><><><>")
+            # print("Training Now", "#" * e, end = "\r")
+            print("Training Now ===========================================================")
+            
 
             #for task i in batch of tasks
             for i in range(self.num_tasks):
@@ -166,8 +170,8 @@ class MAML(object):
                 # print("XTrain: " + str(XTrain.tolist()))
                 # print("YTrain: " + str(YTrain.tolist()))
                 # print(self.theta)
-                self.TrainModel.fit(XTrain,YTrain)
-                gradient = self.TrainModel.calc_grad(XTrain,YTrain)
+                TrainModel.fit(XTrain,YTrain)
+                gradient = TrainModel.calc_grad(XTrain,YTrain)
                 print(gradient)
 
                 
@@ -222,16 +226,16 @@ class MAML(object):
         
         TestModel = QModel(self.MySess, self.theta)
         # for i in range(self.num_tasks):
-        train_start = random.randint(0,TrainSize)
+        train_start = random.randint(0,SampleSize)
         train_end = train_start + SampleSize
         test_end = train_end + TestSize
         XTrain, YTrain = sample_points(df,SampleSize)
-        self.TestModel.fit(XTrain,YTrain)
+        TestModel.fit(XTrain,YTrain)
         print("Testing Now +_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_")
         XTest, YTest = sample_points(df, TestSize)
         # a = np.matmul(XTest, self.theta)
         # YPred = self.sigmoid(a)
-        YPred = self.TestModel.predict(XTest)
+        YPred = TestModel.predict(XTest)
         YPred = [self.classify(pred) for pred in YPred]
         # print("YPred: ", YPred, " --------------------- ")
         # YTest = [self.classify(test) for test in YTest]
